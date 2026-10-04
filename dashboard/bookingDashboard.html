@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Booking — Irish</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+<body>
+
+    <div class="dashboard">
+        <aside class="sidebar">
+            <a href="../index.html" class="sidebar-brand">
+                <img src="../asset/icon-dashboard.png" alt="Irish">
+            </a>
+
+            <nav class="sidebar-nav">
+                <a href="adminDashboard.html">
+                    <img src="../asset/dashboard/barChart-icon.png" alt="" width="19" height="19">
+                    Data Penjualan
+                </a>
+                <a href="bookingDashboard.html" class="active">
+                    <img src="../asset/dashboard/home-icon.png" alt="" width="19" height="19">
+                    Data Booking
+                </a>
+                <a href="feedbackDashboard.html">
+                    <img src="../asset/dashboard/speechBubble-icon.png" alt="" width="19" height="19">
+                    Feedback Pengguna
+                </a>
+            </nav>
+
+            <div class="sidebar-logout">
+                <a href="../index.html">
+                    Keluar
+                </a>
+            </div>
+        </aside>
+
+        <main class="main">
+            <div class="topbar">
+                <h1>Data Booking</h1>
+                <div class="topbar-profile">
+                    <div>
+                        <span>Admin Irish</span>
+                        <small>admin@irish.id</small>
+                    </div>
+                </div>
+            </div>
+
+            <section class="panel">
+                <div class="panel-head">
+                    <h2>Tempat Booking</h2>
+                </div>
+                <div class="booking-grid">
+                    <article class="booking-card">
+                        <img src="../asset/home-asset/pink-asset/card-img-1.png" alt="Studio Musik">
+                        <div class="booking-body">
+                            <h3>Studio Musik</h3>
+                            <p>Ruangan kedap suara, cocok untuk band dan rekaman.</p>
+                            <span class="booking-price">Rp150.000/jam</span>
+                            <button type="button" class="btn-delete">Hapus</button>
+                        </div>
+                    </article>
+                    <article class="booking-card">
+                        <img src="../asset/home-asset/pink-asset/card-img-2.png" alt="Studio Foto">
+                        <div class="booking-body">
+                            <h3>Studio Foto</h3>
+                            <p>Lighting lengkap dan background ganti warna.</p>
+                            <span class="booking-price">Rp200.000/jam</span>
+                            <button type="button" class="btn-delete">Hapus</button>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="panel-head">
+                    <h2>Tambah Data Booking</h2>
+                </div>
+                <form class="booking-form" action="#" method="post">
+                    <div class="form-group">
+                        <label for="nama">Nama Tempat</label>
+                        <input type="text" id="nama" name="nama" placeholder="Contoh: Studio Musik" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="deskripsi">Deskripsi</label>
+                        <textarea id="deskripsi" name="deskripsi" rows="3" placeholder="Deskripsi tempat" required></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="waktu">Waktu Booking</label>
+                            <input type="datetime-local" id="waktu" name="waktu" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="harga">Harga</label>
+                            <input type="number" id="harga" name="harga" placeholder="150000" min="0" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="gambar">Gambar Tempat</label>
+                        <input type="file" id="gambar" name="gambar" accept="image/*" required>
+                    </div>
+                    <button type="submit" class="btn-submit">Tambah Booking</button>
+                </form>
+            </section>
+        </main>
+    </div>
+
+</body>
+</html>
