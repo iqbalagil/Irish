@@ -12,6 +12,12 @@
         rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/auth.css">
+    <style>
+        .auth-message { min-height: 20px; margin: 8px 0; font-size: 13px; text-align: center; text-transform: none; letter-spacing: normal; }
+        .auth-message.error { color: #b42318; }
+        .auth-message.success { color: #247a3c; }
+        .auth-toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); padding: 12px 20px; border-radius: 8px; background: #333; color: white; font-size: 14px; z-index: 10; box-shadow: 0 4px 16px #0003; }
+    </style>
 </head>
 
 <body>
@@ -24,7 +30,7 @@
                 </a>
 
                 <div class="auth-body">
-                    <form class="auth-form" action="index.html" method="get">
+                    <form class="auth-form" id="login-form" novalidate>
                         <h1>LOGIN</h1>
                         <p>Enter your email and password to sign in</p>
 
@@ -37,9 +43,13 @@
                             <input type="password" id="password" name="password" placeholder="Masukkan kata sandi"
                                 required>
                         </div>
-                       <p>Dont have account? <a href="./register.html" class="link">Sign Up</a></p>
+                        <p>Dont have account? <a href="./register.html" class="link" id="to-register">Sign Up</a></p>
+
+                        <p id="login-message" class="auth-message" role="alert" aria-live="polite"></p>
 
                         <button type="submit" class="btn btn-primary btn-block auth-submit">Masuk</button>
+
+                        <p>Akun demo: user@email.com / password123</p>
 
                         <div class="auth-divider">Or continue with</div>
                     </form>
@@ -50,6 +60,55 @@
             </aside>
         </section>
     </main>
+
+    <script>
+        const form = document.getElementById('login-form');
+        const message = document.getElementById('login-message');
+        const demoEmail = 'user@email.com';
+        const demoPassword = 'password123';
+
+        function showMessage(text, type) {
+            message.textContent = text;
+            message.className = 'auth-message ' + type;
+        }
+
+        function showToast(text) {
+            const toast = document.createElement('div');
+            toast.className = 'auth-toast';
+            toast.textContent = text;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        const pageToast = sessionStorage.getItem('authToast');
+        if (pageToast) {
+            showToast(pageToast);
+            sessionStorage.removeItem('authToast');
+        }
+
+        document.getElementById('to-register').addEventListener('click', () => {
+            sessionStorage.setItem('authToast', 'Berpindah ke halaman register');
+        });
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const email = document.getElementById('email').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+            const savedUser = JSON.parse(localStorage.getItem('irishUser') || 'null');
+
+            if (!email || !password) {
+                showMessage('Email dan kata sandi wajib diisi.', 'error');
+            } else if (!document.getElementById('email').checkValidity()) {
+                showMessage('Format email belum benar.', 'error');
+            } else if ((email === demoEmail && password === demoPassword) ||
+                       (savedUser && email === savedUser.email && password === savedUser.password)) {
+                showMessage('Login berhasil! Mengalihkan halaman...', 'success');
+                setTimeout(() => window.location.href = 'index.html', 1200);
+            } else {
+                showMessage('Login gagal. Email atau kata sandi tidak sesuai.', 'error');
+            }
+        });
+    </script>
 
 </body>
 
