@@ -1,0 +1,6 @@
+[
+  {"id":"style-1","name":"Style Outfit 1","description":"Outfit dari koleksi STYLE Irish.","price":150000,"image":"asset/home-asset/style-outfit/styleImage-1.png"},
+  {"id":"style-2","name":"Style Outfit 2","description":"Outfit dari koleksi STYLE Irish.","price":150000,"image":"asset/home-asset/style-outfit/styleImage-2.png"},
+  {"id":"style-3","name":"Style Outfit 3","description":"Outfit dari koleksi STYLE Irish.","price":150000,"image":"asset/home-asset/style-outfit/styleImage-3.png"},
+  {"id":"style-4","name":"Style Outfit 4","description":"Outfit dari koleksi STYLE Irish.","price":150000,"image":"asset/home-asset/style-outfit/styleImage-4.png"}
+]

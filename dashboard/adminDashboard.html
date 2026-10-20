@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/dashboard.css">
+    <script src="../js/dashboard.js" defer></script>
 </head>
 <body>
 
@@ -45,34 +46,35 @@
                 <h1>Data Penjualan</h1>
                 <div class="topbar-profile">
                     <div>
-                        <span>Admin Irish</span>
-                        <small>admin@irish.id</small>
+                        <span id="nama_admin"></span>
+                        <small id="email_admin"></small>
                     </div>
+                    <button type="button" id="edit-profile" class="profile-edit">Ubah profil</button>
                 </div>
             </div>
 
             <section class="stats stats-sales">
                 <div class="stat-card">
                     <div>
-                        <h3>1.248</h3>
+                        <h3 id="total-sales">0</h3>
                         <p>Total Penjualan</p>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div>
-                        <h3>Rp84jt</h3>
+                        <h3 id="total-revenue">Rp0</h3>
                         <p>Total Pendapatan</p>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div>
-                        <h3>342</h3>
+                        <h3 id="monthly-sales">0</h3>
                         <p>Penjualan Bulan Ini</p>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div>
-                        <h3>Rp12,5jt</h3>
+                        <h3 id="today-revenue">Rp0</h3>
                         <p>Penjualan Hari Ini</p>
                     </div>
                 </div>
@@ -87,47 +89,37 @@
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Nama Tempat</th>
+                                <th>Produk</th>
+                                <th>Pembeli</th>
                                 <th>Tanggal</th>
                                 <th>Jumlah</th>
                                 <th>Total</th>
+                                <th>Pembayaran</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>#PJ-001</td>
-                                <td>Irish Music Studio</td>
-                                <td>4 Okt 2026</td>
-                                <td>3</td>
-                                <td>Rp450.000</td>
-                            </tr>
-                            <tr>
-                                <td>#PJ-002</td>
-                                <td>Irish Photo Space</td>
-                                <td>3 Okt 2026</td>
-                                <td>2</td>
-                                <td>Rp300.000</td>
-                            </tr>
-                            <tr>
-                                <td>#PJ-003</td>
-                                <td>Irish Video Lab</td>
-                                <td>3 Okt 2026</td>
-                                <td>5</td>
-                                <td>Rp750.000</td>
-                            </tr>
-                            <tr>
-                                <td>#PJ-004</td>
-                                <td>Irish Dance Hall</td>
-                                <td>2 Okt 2026</td>
-                                <td>4</td>
-                                <td>Rp600.000</td>
-                            </tr>
-                        </tbody>
+                        <tbody id="sales-rows"></tbody>
                     </table>
                 </div>
             </section>
+            <p id="sales-message" class="sales-message" role="status" aria-live="polite"></p>
         </main>
     </div>
+
+    <dialog id="profile-dialog" class="profile-dialog" aria-labelledby="profile-title">
+        <form id="profile-form">
+            <h2 id="profile-title">Ubah Profil Admin</h2>
+            <label for="admin-name">Username admin</label>
+            <input id="admin-name" name="adminName" type="text" maxlength="80" required>
+            <label for="admin-email">Email admin</label>
+            <input id="admin-email" name="adminEmail" type="email" required>
+            <p id="profile-message" role="status" aria-live="polite"></p>
+            <div class="dialog-actions">
+                <button type="button" id="cancel-profile">Batal</button>
+                <button type="submit">Simpan</button>
+            </div>
+        </form>
+    </dialog>
 
 </body>
 </html>

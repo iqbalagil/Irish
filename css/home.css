@@ -317,6 +317,38 @@ header {
         flex: none;
 }
 
+.style { padding-bottom: 60px; }
+.shop-status { color: #555; font-size: 14px; }
+.style-product-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; max-width: 1000px; margin: 20px auto 0; padding: 0 24px; text-align: left; }
+.product-card { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: #fff; }
+.product-body { display: flex; flex-direction: column; gap: 8px; padding: 15px; min-height: 155px; }
+.product-body h3 { font-size: 17px; }
+.product-body p { color: #555; font-size: 13px; line-height: 1.4; flex: 1; }
+.product-body strong { font-size: 14px; }
+.product-body button, .pay-button { border: 0; border-radius: 8px; background: var(--red); color: #fff; padding: 11px 14px; cursor: pointer; font-weight: 700; }
+.product-body button:hover, .pay-button:hover { background: #b93131; }
+.product-body button.is-pressed { transform: scale(.96); }
+.pay-button:disabled { opacity: .6; cursor: wait; }
+
+.shop-dialog { width: min(92vw, 430px); max-height: 90vh; overflow: auto; margin: auto; padding: 24px; border: 0; border-radius: 16px; box-shadow: 0 16px 50px #0004; text-align: left; }
+.shop-dialog::backdrop { background: #0008; }
+.shop-dialog form { display: flex; flex-direction: column; gap: 9px; }
+.dialog-heading { display: flex; justify-content: space-between; align-items: center; }
+.dialog-heading h2 { font-size: 22px; margin: 0; }
+.close-dialog { border: 0; background: none; font-size: 28px; cursor: pointer; }
+.selected-product { color: #555; margin-bottom: 8px; }
+.shop-dialog label { font-size: 14px; font-weight: 600; }
+.shop-dialog input, .shop-dialog select { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 10px; font: inherit; }
+.transaction-total { margin-top: 8px; font-weight: 700; }
+
+@media (max-width: 850px) {
+        .style-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 480px) {
+        .style-product-grid { grid-template-columns: 1fr; }
+}
+
 @media (max-width:760px) {
         .slide {
                 flex-basis: 70%;

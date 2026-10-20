@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>IRISH</title>
 <link rel="stylesheet" href="css/home.css">
+<script src="js/home.js" defer></script>
 </head>
 <body>
 <div class="wrap">
@@ -60,16 +61,34 @@
 
   <section class="style">
     <h2>STYLE</h2>
-    <div class="gallery">
-      <img src="asset/home-asset/style-outfit/styleImage-1.png" alt="Style look 1">
-      <img src="asset/home-asset/style-outfit/styleImage-2.png" alt="Style look 2">
-      <img src="asset/home-asset/style-outfit/styleImage-3.png" alt="Style look 3">
-      <img src="asset/home-asset/style-outfit/styleImage-4.png" alt="Style look 4">
-      <img src="asset/home-asset/style-outfit/styleImage-1.png" alt="Style look 5">
-      <img src="asset/home-asset/style-outfit/styleImage-2.png" alt="Style look 6">
-      <img src="asset/home-asset/style-outfit/styleImage-3.png" alt="Style look 7">
-      <img src="asset/home-asset/style-outfit/styleImage-4.png" alt="Style look 8">
-    </div>
+    <p id="products-status" class="shop-status" role="status" aria-live="polite">Memuat outfit...</p>
+    <div id="product-list" class="style-product-grid"></div>
+
+    <dialog id="transaction-dialog" class="shop-dialog" aria-labelledby="transaction-title">
+      <form id="transaction-form">
+        <div class="dialog-heading">
+          <h2 id="transaction-title">Buat Transaksi</h2>
+          <button type="button" id="close-transaction" class="close-dialog" aria-label="Tutup">&times;</button>
+        </div>
+        <p id="selected-product" class="selected-product"></p>
+        <label for="buyer-name">Nama pembeli</label>
+        <input id="buyer-name" name="buyerName" type="text" maxlength="80" required>
+        <label for="buyer-email">Email pembeli</label>
+        <input id="buyer-email" name="buyerEmail" type="email" required>
+        <label for="quantity">Jumlah</label>
+        <input id="quantity" name="quantity" type="number" min="1" max="20" value="1" required>
+        <label for="payment-method">Metode pembayaran (simulasi)</label>
+        <select id="payment-method" name="paymentMethod" required>
+          <option value="">Pilih metode</option>
+          <option value="Transfer bank">Transfer bank</option>
+          <option value="E-wallet">E-wallet</option>
+          <option value="Tunai">Tunai</option>
+        </select>
+        <p id="transaction-total" class="transaction-total"></p>
+        <p id="transaction-message" class="shop-status" role="status" aria-live="polite"></p>
+        <button id="pay-button" class="pay-button" type="submit">Bayar (simulasi)</button>
+      </form>
+    </dialog>
   </section>
 
 </div>
