@@ -1,3 +1,4 @@
+<?php require __DIR__ . '/auth.php'; ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -12,15 +13,30 @@
 
   <header>
     <button class="menu" aria-label="Open menu"></button>
-    <a class="logo" href="index.html" aria-label="IRISH home">
+    <a class="logo" href="index.php" aria-label="IRISH home">
       <img src="asset/icon.png" alt="IRISH icon">
       IRISH
     </a>
+    <div class="account-bar">
+      <?php if (!empty($_SESSION['username'])): ?>
+      <span>Halo, <strong><?= escape_html($_SESSION['username']) ?></strong></span>
+      <form action="logout.php" method="post">
+        <input type="hidden" name="csrf_token" value="<?= escape_html(csrf_token()) ?>">
+        <button type="submit">Logout</button>
+      </form>
+    <?php else: ?>
+      <a href="login.php">Masuk</a>
+    <?php endif; ?>
     <div class="icons">
       <a href="#" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="7"/><path d="M15 15l6 6"/></svg></a>
       <a href="#" aria-label="Cart"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 2h4l1 3h16l-3 9H8L5 4H1z"/><circle cx="9" cy="20" r="2"/><circle cx="18" cy="20" r="2"/></svg><span class="badge">99+</span></a>
     </div>
+  </div>
+
+
+
   </header>
+
 
   <section class="carousel" aria-label="Featured looks">
     <div class="track">

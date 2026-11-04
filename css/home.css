@@ -81,6 +81,42 @@ header {
         height: 28px;
 }
 
+.account-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 0 17px 8px;
+        font-size: 14px;
+}
+
+.account-bar span {
+        overflow-wrap: anywhere;
+}
+
+.account-bar button {
+        border: 1px solid var(--red);
+        border-radius: 6px;
+        background: #fff;
+        color: #b93131;
+        padding: 6px 10px;
+        font: inherit;
+        text-decoration: none;
+        cursor: pointer;
+}
+
+.account-bar a:hover,
+.account-bar button:hover {
+        background: var(--blush);
+}
+
+.account-bar a:focus-visible,
+.account-bar button:focus-visible {
+        outline: 2px solid var(--red);
+        outline-offset: 2px;
+}
+
 .badge {
         position: absolute;
         top: -6px;
@@ -376,5 +412,9 @@ header {
 
         .icons {
                 padding-right: 12px;
+        }
+        .icons a{
+                color: #000;
+                border-color: #000;
         }
 }

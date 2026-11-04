@@ -4,7 +4,12 @@
 
 Aplikasi Web yang berfungsi dalam jual beli serta penyewaan Studio
 
-Tech Stack Yang digunakan :
-* HTML
-* CSS
-* JavaScript
+Tech stack: PHP 8 (dengan ekstensi mbstring), CSS, dan JavaScript.
+
+Jalankan dari folder proyek dengan `php -S localhost:8000`, lalu buka
+`http://localhost:8000/index.php`. Daftar akun melalui `register.php`, masuk
+melalui `login.php`, dan gunakan tombol Logout untuk mengakhiri session.
+
+Akun disimpan di `data/users.php` saat pendaftaran pertama. File ini tidak
+masuk Git dan password disimpan sebagai hash. Akun lama yang hanya ada di
+`localStorage` browser perlu didaftarkan ulang.

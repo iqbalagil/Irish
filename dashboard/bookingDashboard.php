@@ -1,3 +1,7 @@
+<?php
+require __DIR__ . '/../auth.php';
+require_login('../login.php');
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -14,30 +18,29 @@
 
     <div class="dashboard">
         <aside class="sidebar">
-            <a href="../index.html" class="sidebar-brand">
+            <a href="../index.php" class="sidebar-brand">
                 <img src="../asset/icon-dashboard.png" alt="Irish">
             </a>
 
             <nav class="sidebar-nav">
-                <a href="adminDashboard.html">
+                <a href="adminDashboard.php">
                     <img src="../asset/dashboard/barChart-icon.png" alt="" width="19" height="19">
                     Data Penjualan
                 </a>
-                <a href="bookingDashboard.html" class="active">
+                <a href="bookingDashboard.php" class="active">
                     <img src="../asset/dashboard/home-icon.png" alt="" width="19" height="19">
                     Data Booking
                 </a>
-                <a href="feedbackDashboard.html">
+                <a href="feedbackDashboard.php">
                     <img src="../asset/dashboard/speechBubble-icon.png" alt="" width="19" height="19">
                     Feedback Pengguna
                 </a>
             </nav>
 
-            <div class="sidebar-logout">
-                <a href="../index.html">
-                    Keluar
-                </a>
-            </div>
+            <form class="sidebar-logout" action="../logout.php" method="post">
+                <input type="hidden" name="csrf_token" value="<?= escape_html(csrf_token()) ?>">
+                <button type="submit">Keluar</button>
+            </form>
         </aside>
 
         <main class="main">
