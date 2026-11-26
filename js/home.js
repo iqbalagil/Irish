@@ -11,7 +11,7 @@ let selectedProduct = null;
 
 async function loadProducts() {
   try {
-    const response = await fetch('data/products.json');
+    const response = await fetch('api/products.php');
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
     if (!Array.isArray(data)) throw new Error('Format produk tidak sesuai.');
@@ -37,15 +37,15 @@ async function loadProducts() {
       price.textContent = rupiah.format(product.price);
       const button = document.createElement('button');
       button.type = 'button';
-      button.dataset.productId = product.id;
+      button.dataset.productId = String(product.id);
       button.textContent = 'Beli produk';
       body.append(title, description, price, button);
       card.append(img, body);
       productList.append(card);
     }
-    productsStatus.textContent = `${products.length} outfit tersedia. Pilih outfit untuk membeli (simulasi).`;
+    productsStatus.textContent = `${products.length} outfit tersedia. Pilih outfit untuk membeli.`;
   } catch (error) {
-    productsStatus.textContent = 'Outfit gagal dimuat. Jalankan situs melalui server lokal lalu muat ulang halaman.';
+    productsStatus.textContent = 'Outfit gagal dimuat dari database. Muat ulang halaman.';
     console.error('Gagal memuat produk:', error);
   }
 }
@@ -59,7 +59,6 @@ function updateTotal() {
       : 'Masukkan jumlah 1 sampai 20.';
 }
 
-// Delegation 1: satu listener melayani semua tombol produk hasil fetch.
 productList.addEventListener('mousedown', (event) => {
   if (event.button !== 0) return;
   const button = event.target.closest('button[data-product-id]');
@@ -71,7 +70,7 @@ productList.addEventListener('mousedown', (event) => {
 productList.addEventListener('click', (event) => {
   const button = event.target.closest('button[data-product-id]');
   if (!button || !productList.contains(button)) return;
-  selectedProduct = products.find((product) => product.id === button.dataset.productId);
+  selectedProduct = products.find((product) => String(product.id) === button.dataset.productId);
   if (!selectedProduct) return;
   form.reset();
   quantityInput.value = '1';
@@ -88,10 +87,6 @@ dialog.addEventListener('click', (event) => {
   if (event.target === dialog) dialog.close();
 });
 
-function wait(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
   if (!selectedProduct || !form.reportValidity()) return;
@@ -99,31 +94,28 @@ form.addEventListener('submit', async (event) => {
   if (!Number.isInteger(quantity) || quantity < 1 || quantity > 20) return;
 
   payButton.disabled = true;
-  transactionMessage.textContent = 'Memproses pembayaran simulasi...';
+  transactionMessage.textContent = 'Memproses transaksi...';
   try {
-    await wait(600);
-    const transaction = {
-      id: `PJ-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-      productId: selectedProduct.id,
-      productName: selectedProduct.name,
-      buyerName: form.elements.buyerName.value.trim(),
-      buyerEmail: form.elements.buyerEmail.value.trim(),
-      quantity,
-      total: selectedProduct.price * quantity,
-      paymentMethod: form.elements.paymentMethod.value,
-      paidAt: new Date().toISOString(),
-      status: 'Pembayaran masuk (simulasi)'
-    };
-    if (!transaction.buyerName) throw new Error('Nama pembeli wajib diisi.');
-    const saved = JSON.parse(localStorage.getItem('irishTransactions') || '[]');
-    const transactions = Array.isArray(saved) ? saved : [];
-    transactions.unshift(transaction);
-    localStorage.setItem('irishTransactions', JSON.stringify(transactions));
+    const response = await fetch('api/checkout.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        productId: selectedProduct.id,
+        buyerName: form.elements.buyerName.value.trim(),
+        buyerEmail: form.elements.buyerEmail.value.trim(),
+        quantity,
+        paymentMethod: form.elements.paymentMethod.value,
+      }),
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || `HTTP ${response.status}`);
+    }
 
-    // Propagation: event berasal dari form dan bubble ke pembungkus halaman.
-    form.dispatchEvent(new CustomEvent('transaction:paid', { bubbles: true, detail: transaction }));
+    form.dispatchEvent(new CustomEvent('transaction:paid', { bubbles: true, detail: result }));
     dialog.close();
-    window.alert(`${transaction.productName} berhasil dibeli (simulasi). Pembayaran masuk.`);
+    window.alert(`${result.productName} berhasil dibeli (${result.id}). Pembayaran masuk.`);
+    await loadProducts();
   } catch (error) {
     transactionMessage.textContent = `Transaksi gagal: ${error.message}`;
   } finally {
@@ -132,7 +124,7 @@ form.addEventListener('submit', async (event) => {
 });
 
 document.querySelector('.style').addEventListener('transaction:paid', (event) => {
-  productsStatus.textContent = `Pembayaran ${event.detail.id} masuk (simulasi).`;
+  productsStatus.textContent = `Pembayaran ${event.detail.id} berhasil disimpan ke database.`;
 });
 
 window.addEventListener('load', () => {

@@ -1,6 +1,16 @@
 <?php
 require __DIR__ . '/../auth.php';
 require_login('../login.php');
+
+$pdo = db();
+$adminProfile = get_admin_profile();
+
+$feedbacks = $pdo->query(
+    'SELECT f.nama_pengguna, f.pesan, f.tanggal, t.nama_tempat
+     FROM feedback_data f
+     LEFT JOIN tempat_booking t ON t.id = f.tempat_id
+     ORDER BY f.tanggal DESC'
+)->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -49,10 +59,10 @@ require_login('../login.php');
                 <h1>Feedback Pengguna</h1>
                 <div class="topbar-profile">
                     <div>
-                        <span id="nama_admin"></span>
-                        <small id="email_admin"></small>
+                        <span id="nama_admin"><?= escape_html($adminProfile['nama_admin']) ?></span>
+                        <small id="email_admin"><?= escape_html($adminProfile['email_admin']) ?></small>
                     </div>
-                    <button type="button" id="edit-profile" class="profile-edit">Ubah profil</button>
+                    <a href="adminDashboard.php" class="profile-edit">Ubah profil</a>
                 </div>
             </div>
 
@@ -71,18 +81,20 @@ require_login('../login.php');
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>Budi Santoso</td>
-                                <td>Studio Musik</td>
-                                <td>Suara jernih, ruangan nyaman.</td>
-                                <td>4 Okt 2026</td>
-                            </tr>
-                            <tr>
-                                <td>Sari Wijaya</td>
-                                <td>Studio Foto</td>
-                                <td>Lighting bagus, admin ramah.</td>
-                                <td>3 Okt 2026</td>
-                            </tr>
+                            <?php if (empty($feedbacks)): ?>
+                                <tr>
+                                    <td colspan="4">Belum ada feedback pengguna.</td>
+                                </tr>
+                            <?php else: ?>
+                                <?php foreach ($feedbacks as $fb): ?>
+                                    <tr>
+                                        <td><?= escape_html($fb['nama_pengguna']) ?></td>
+                                        <td><?= escape_html($fb['nama_tempat'] ?? '-') ?></td>
+                                        <td><?= escape_html($fb['pesan']) ?></td>
+                                        <td><?= escape_html(date('d M Y', strtotime($fb['tanggal']))) ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>

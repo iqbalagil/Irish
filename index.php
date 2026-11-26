@@ -82,6 +82,7 @@
 
     <dialog id="transaction-dialog" class="shop-dialog" aria-labelledby="transaction-title">
       <form id="transaction-form">
+        <input type="hidden" name="csrf_token" value="<?= escape_html(csrf_token()) ?>">
         <div class="dialog-heading">
           <h2 id="transaction-title">Buat Transaksi</h2>
           <button type="button" id="close-transaction" class="close-dialog" aria-label="Tutup">&times;</button>

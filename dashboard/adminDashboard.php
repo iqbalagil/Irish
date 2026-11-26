@@ -1,6 +1,62 @@
 <?php
 require __DIR__ . '/../auth.php';
 require_login('../login.php');
+
+$pdo = db();
+$salesMessage = '';
+$profileError = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'update_profile') {
+    if (!valid_csrf()) {
+        $profileError = 'Form tidak valid. Muat ulang halaman dan coba lagi.';
+    } else {
+        $adminId = (int) ($_POST['adminId'] ?? 0);
+        $adminName = trim((string) ($_POST['adminName'] ?? ''));
+        $adminEmail = strtolower(trim((string) ($_POST['adminEmail'] ?? '')));
+
+        if ($adminName === '' || mb_strlen($adminName, 'UTF-8') > 50) {
+            $profileError = 'Nama admin wajib diisi (maksimal 50 karakter).';
+        } elseif ($adminEmail === '' || strlen($adminEmail) > 254 || !filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
+            $profileError = 'Format email admin tidak valid.';
+        } else {
+            try {
+                update_admin_profile($adminId, $adminName, $adminEmail);
+                header('Location: adminDashboard.php?profile=updated');
+                exit;
+            } catch (Throwable $e) {
+                error_log('Update admin profile error: ' . $e->getMessage());
+                $profileError = 'Gagal menyimpan profil admin.';
+            }
+        }
+    }
+}
+
+if (isset($_GET['profile']) && $_GET['profile'] === 'updated') {
+    $salesMessage = 'Profil admin berhasil disimpan ke database.';
+}
+if ($profileError !== '') {
+    $salesMessage = $profileError;
+}
+
+$adminProfile = get_admin_profile();
+
+$summary = $pdo->query('SELECT total_penjualan, total_pendapatan, penjualan_bulan_ini, pendapatan_hari_ini FROM v_ringkasan_penjualan')->fetch() ?: [
+    'total_penjualan'     => 0,
+    'total_pendapatan'    => 0,
+    'penjualan_bulan_ini' => 0,
+    'pendapatan_hari_ini' => 0,
+];
+
+$transactions = $pdo->query(
+    'SELECT kode_transaksi, nama_produk, nama_pembeli, email_pembeli, jumlah, total, metode_pembayaran, status, tanggal
+     FROM transaksi_data
+     ORDER BY tanggal DESC'
+)->fetchAll();
+
+function format_rupiah(int|float|string $amount): string
+{
+    return 'Rp' . number_format((float) $amount, 0, ',', '.');
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -49,8 +105,8 @@ require_login('../login.php');
                 <h1>Data Penjualan</h1>
                 <div class="topbar-profile">
                     <div>
-                        <span id="nama_admin"></span>
-                        <small id="email_admin"></small>
+                        <span id="nama_admin"><?= escape_html($adminProfile['nama_admin']) ?></span>
+                        <small id="email_admin"><?= escape_html($adminProfile['email_admin']) ?></small>
                     </div>
                     <button type="button" id="edit-profile" class="profile-edit">Ubah profil</button>
                 </div>
@@ -59,25 +115,25 @@ require_login('../login.php');
             <section class="stats stats-sales">
                 <div class="stat-card">
                     <div>
-                        <h3 id="total-sales">0</h3>
+                        <h3 id="total-sales"><?= (int) $summary['total_penjualan'] ?></h3>
                         <p>Total Penjualan</p>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div>
-                        <h3 id="total-revenue">Rp0</h3>
+                        <h3 id="total-revenue"><?= escape_html(format_rupiah($summary['total_pendapatan'] ?? 0)) ?></h3>
                         <p>Total Pendapatan</p>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div>
-                        <h3 id="monthly-sales">0</h3>
+                        <h3 id="monthly-sales"><?= (int) $summary['penjualan_bulan_ini'] ?></h3>
                         <p>Penjualan Bulan Ini</p>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div>
-                        <h3 id="today-revenue">Rp0</h3>
+                        <h3 id="today-revenue"><?= escape_html(format_rupiah($summary['pendapatan_hari_ini'] ?? 0)) ?></h3>
                         <p>Penjualan Hari Ini</p>
                     </div>
                 </div>
@@ -97,25 +153,60 @@ require_login('../login.php');
                                 <th>Tanggal</th>
                                 <th>Jumlah</th>
                                 <th>Total</th>
-                                <th>Pembayaran</th>
+                                <th>Status</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="sales-rows"></tbody>
+                        <tbody id="sales-rows">
+                            <?php if (empty($transactions)): ?>
+                                <tr>
+                                    <td colspan="8">Belum ada transaksi. Pilih produk dari halaman utama.</td>
+                                </tr>
+                            <?php else: ?>
+                                <?php foreach ($transactions as $trx): ?>
+                                    <tr>
+                                        <td><?= escape_html($trx['kode_transaksi']) ?></td>
+                                        <td><?= escape_html($trx['nama_produk']) ?></td>
+                                        <td><?= escape_html($trx['nama_pembeli']) ?></td>
+                                        <td><?= escape_html(date('d M Y, H:i', strtotime($trx['tanggal']))) ?></td>
+                                        <td><?= (int) $trx['jumlah'] ?></td>
+                                        <td><?= escape_html(format_rupiah($trx['total'])) ?></td>
+                                        <td><?= escape_html($trx['status']) ?></td>
+                                        <td>
+                                            <button
+                                                type="button"
+                                                class="receipt-button"
+                                                data-transaction-id="<?= escape_html($trx['kode_transaksi']) ?>"
+                                                data-product-name="<?= escape_html($trx['nama_produk']) ?>"
+                                                data-quantity="<?= (int) $trx['jumlah'] ?>"
+                                                data-buyer-name="<?= escape_html($trx['nama_pembeli']) ?>"
+                                                data-buyer-email="<?= escape_html($trx['email_pembeli']) ?>"
+                                                data-payment-method="<?= escape_html($trx['metode_pembayaran']) ?>"
+                                                data-total="<?= (int) $trx['total'] ?>"
+                                                data-status="<?= escape_html($trx['status']) ?>"
+                                            >Lihat detail</button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
                     </table>
                 </div>
             </section>
-            <p id="sales-message" class="sales-message" role="status" aria-live="polite"></p>
+            <p id="sales-message" class="sales-message" role="status" aria-live="polite"><?= escape_html($salesMessage) ?></p>
         </main>
     </div>
 
     <dialog id="profile-dialog" class="profile-dialog" aria-labelledby="profile-title">
-        <form id="profile-form">
+        <form id="profile-form" action="adminDashboard.php" method="post">
+            <input type="hidden" name="csrf_token" value="<?= escape_html(csrf_token()) ?>">
+            <input type="hidden" name="action" value="update_profile">
+            <input type="hidden" name="adminId" value="<?= (int) $adminProfile['id'] ?>">
             <h2 id="profile-title">Ubah Profil Admin</h2>
             <label for="admin-name">Username admin</label>
-            <input id="admin-name" name="adminName" type="text" maxlength="80" required>
+            <input id="admin-name" name="adminName" type="text" maxlength="50" value="<?= escape_html($adminProfile['nama_admin']) ?>" required>
             <label for="admin-email">Email admin</label>
-            <input id="admin-email" name="adminEmail" type="email" required>
+            <input id="admin-email" name="adminEmail" type="email" maxlength="254" value="<?= escape_html($adminProfile['email_admin']) ?>" required>
             <p id="profile-message" role="status" aria-live="polite"></p>
             <div class="dialog-actions">
                 <button type="button" id="cancel-profile">Batal</button>

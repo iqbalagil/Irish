@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 ini_set('session.use_strict_mode', '1');
 session_name('irish_session');
 session_set_cookie_params([
@@ -12,8 +14,13 @@ session_set_cookie_params([
 session_start();
 header('Cache-Control: no-store, private');
 
-const USERS_FILE = __DIR__ . '/data/users.php';
-const USERS_HEADER = "<?php http_response_code(403); exit; ?>\n";
+require_once __DIR__ . '/koneksi.php';
+
+function db(): PDO
+{
+    global $pdo;
+    return $pdo;
+}
 
 function escape_html(string $value): string
 {
@@ -44,82 +51,83 @@ function require_login(string $login_url): void
     }
 }
 
-function read_users($file): array
-{
-    rewind($file);
-    $contents = stream_get_contents($file);
-
-    if ($contents === false) {
-        throw new RuntimeException('Data akun tidak dapat dibaca.');
-    }
-    if ($contents === '') {
-        return [];
-    }
-    if (!str_starts_with($contents, USERS_HEADER)) {
-        throw new RuntimeException('Format data akun tidak sesuai.');
-    }
-
-    $users = json_decode(substr($contents, strlen(USERS_HEADER)), true, 512, JSON_THROW_ON_ERROR);
-    if (!is_array($users)) {
-        throw new RuntimeException('Format data akun tidak sesuai.');
-    }
-
-    return $users;
-}
-
 function find_user(string $email): ?array
 {
-    if (!is_file(USERS_FILE)) {
-        return null;
-    }
+    $stmt = db()->prepare(
+        'SELECT id, username, email, password_hash FROM akun_data WHERE email = :email LIMIT 1'
+    );
+    $stmt->execute([':email' => $email]);
+    $user = $stmt->fetch();
 
-    $file = @fopen(USERS_FILE, 'rb');
-    if ($file === false) {
-        throw new RuntimeException('Data akun tidak dapat dibuka.');
-    }
-
-    try {
-        if (!flock($file, LOCK_SH)) {
-            throw new RuntimeException('Data akun sedang digunakan.');
-        }
-        return read_users($file)[$email] ?? null;
-    } finally {
-        flock($file, LOCK_UN);
-        fclose($file);
-    }
+    return $user ?: null;
 }
 
 function register_user(string $username, string $email, string $password): bool
 {
-    $file = @fopen(USERS_FILE, 'c+');
-    if ($file === false) {
-        throw new RuntimeException('Data akun tidak dapat disimpan.');
+    $pdo = db();
+
+    $check = $pdo->prepare('SELECT id FROM akun_data WHERE email = :email LIMIT 1');
+    $check->execute([':email' => $email]);
+    if ($check->fetch()) {
+        return false;
     }
+
+    $stmt = $pdo->prepare(
+        'INSERT INTO akun_data (username, email, password_hash) VALUES (:username, :email, :password_hash)'
+    );
 
     try {
-        if (!flock($file, LOCK_EX)) {
-            throw new RuntimeException('Data akun sedang digunakan.');
-        }
-
-        $users = read_users($file);
-        if (isset($users[$email])) {
+        $stmt->execute([
+            ':username'      => $username,
+            ':email'         => $email,
+            ':password_hash' => password_hash($password, PASSWORD_DEFAULT),
+        ]);
+        return true;
+    } catch (PDOException $e) {
+        if ($e->getCode() === '23000') {
             return false;
         }
-
-        $users[$email] = [
-            'username' => $username,
-            'password_hash' => password_hash($password, PASSWORD_DEFAULT),
-        ];
-        $contents = USERS_HEADER . json_encode($users, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR) . "\n";
-
-        rewind($file);
-        if (!ftruncate($file, 0) || fwrite($file, $contents) !== strlen($contents) || !fflush($file)) {
-            throw new RuntimeException('Data akun tidak dapat disimpan.');
-        }
-
-        return true;
-    } finally {
-        flock($file, LOCK_UN);
-        fclose($file);
+        throw $e;
     }
+}
+
+function get_admin_profile(): array
+{
+    $stmt = db()->query('SELECT id, nama_admin, email_admin FROM admin_data ORDER BY id ASC LIMIT 1');
+    $admin = $stmt->fetch();
+
+    if ($admin) {
+        return $admin;
+    }
+
+    return [
+        'id'          => 0,
+        'nama_admin'  => 'Admin Irish',
+        'email_admin' => 'admin@irish.id',
+    ];
+}
+
+function update_admin_profile(int $id, string $namaAdmin, string $emailAdmin): bool
+{
+    $pdo = db();
+
+    if ($id > 0) {
+        $stmt = $pdo->prepare(
+            'UPDATE admin_data SET nama_admin = :nama_admin, email_admin = :email_admin WHERE id = :id'
+        );
+        return $stmt->execute([
+            ':nama_admin'  => $namaAdmin,
+            ':email_admin' => $emailAdmin,
+            ':id'          => $id,
+        ]);
+    }
+
+    $stmt = $pdo->prepare(
+        'INSERT INTO admin_data (nama_admin, email_admin, password_hash) VALUES (:nama_admin, :email_admin, :password_hash)'
+    );
+    return $stmt->execute([
+        ':nama_admin'    => $namaAdmin,
+        ':email_admin'   => $emailAdmin,
+        ':password_hash' => password_hash('admin12345', PASSWORD_DEFAULT),
+    ]);
 }
