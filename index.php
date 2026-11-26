@@ -5,14 +5,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>IRISH</title>
-<link rel="stylesheet" href="css/home.css">
-<script src="js/home.js" defer></script>
+<link rel="stylesheet" href="css/home.css?v=<?= filemtime(__DIR__ . '/css/home.css') ?>">
+<script src="js/home.js?v=<?= filemtime(__DIR__ . '/js/home.js') ?>" defer></script>
 </head>
 <body>
 <div class="wrap">
 
   <header>
-    <button class="menu" aria-label="Open menu"></button>
+    <button type="button" class="menu" id="nav-toggle" aria-label="Buka menu" aria-expanded="false" aria-controls="nav-sidebar"></button>
     <a class="logo" href="index.php" aria-label="IRISH home">
       <img src="asset/icon.png" alt="IRISH icon">
       IRISH
@@ -106,8 +106,44 @@
         <button id="pay-button" class="pay-button" type="submit">Bayar (simulasi)</button>
       </form>
     </dialog>
+
+    <dialog id="product-feedback-dialog" class="shop-dialog" aria-labelledby="pf-dialog-title">
+      <div class="dialog-heading">
+        <h2 id="pf-dialog-title">Ulasan Produk</h2>
+        <button type="button" id="close-product-feedback" class="close-dialog" aria-label="Tutup">&times;</button>
+      </div>
+      <p id="pf-product-name" class="selected-product"></p>
+      <div id="pf-list" class="feedback-list pf-dialog-list">
+        <p class="shop-status">Memuat ulasan...</p>
+      </div>
+      <form id="product-feedback-form" class="feedback-form" action="api/feedback.php" method="post" novalidate>
+        <input type="hidden" name="csrf_token" value="<?= escape_html(csrf_token()) ?>">
+        <input type="hidden" id="pf-product-id" name="product_id" value="">
+        <label for="pf-nama">Nama</label>
+        <input id="pf-nama" name="nama_pengguna" type="text" maxlength="40" placeholder="Namamu" required>
+        <label for="pf-pesan">Ulasan</label>
+        <textarea id="pf-pesan" name="pesan" rows="3" placeholder="Tulis ulasan untuk produk ini..." required></textarea>
+        <p id="pf-message" class="shop-status" role="status" aria-live="polite"></p>
+        <button type="submit" class="pay-button">Kirim Ulasan</button>
+      </form>
+    </dialog>
   </section>
 
 </div>
+
+<div id="nav-backdrop" class="nav-backdrop"></div>
+<aside id="nav-sidebar" class="nav-sidebar" aria-label="Navigasi Utama" aria-hidden="true">
+  <div class="nav-sidebar-head">
+    <a class="logo" href="index.php">
+      <img src="asset/icon.png" alt="IRISH icon">
+      IRISH
+    </a>
+    <button type="button" id="nav-close" class="close-dialog" aria-label="Tutup menu">&times;</button>
+  </div>
+  <nav class="nav-sidebar-links">
+    <a href="index.php" class="nav-link active" aria-current="page">Beranda</a>
+    <a href="katalog.php" class="nav-link">Katalog Produk</a>
+  </nav>
+</aside>
 </body>
 </html>

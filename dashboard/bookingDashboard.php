@@ -236,6 +236,10 @@ $reservations = $pdo->query(
                     <img src="../asset/dashboard/home-icon.png" alt="" width="19" height="19">
                     Data Booking
                 </a>
+                <a href="productDashboard.php">
+                    <img src="../asset/dashboard/product-icon.png" alt="" width="19" height="19">
+                    Data Produk
+                </a>
                 <a href="feedbackDashboard.php">
                     <img src="../asset/dashboard/speechBubble-icon.png" alt="" width="19" height="19">
                     Feedback Pengguna

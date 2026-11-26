@@ -500,3 +500,35 @@ tbody tr:hover {
         display: none;
     }
 }
+
+/* ── Section Title ── */
+.section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 24px 0 12px;
+    padding: 0 2px;
+}
+
+/* ── Stats Overview (widget ringkasan data) ── */
+.stats-overview {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+}
+
+.stats-products {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.product-thumb {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+}
+
+.action-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}

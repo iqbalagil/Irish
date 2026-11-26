@@ -47,6 +47,24 @@ $summary = $pdo->query('SELECT total_penjualan, total_pendapatan, penjualan_bula
     'pendapatan_hari_ini' => 0,
 ];
 
+// Widget: Jumlah Data Keseluruhan
+$widgetStats = $pdo->query("
+    SELECT
+        (SELECT COUNT(*) FROM product_data WHERE status_pengajuan = 'disetujui') AS total_produk_aktif,
+        (SELECT COUNT(*) FROM product_data WHERE status_pengajuan = 'menunggu')  AS produk_menunggu,
+        (SELECT COUNT(*) FROM booking_data WHERE status = 'menunggu')            AS booking_menunggu,
+        (SELECT COUNT(*) FROM booking_data WHERE status = 'dikonfirmasi')        AS booking_dikonfirmasi,
+        (SELECT COUNT(*) FROM akun_data)                                          AS total_pengguna,
+        (SELECT COUNT(*) FROM feedback_data)                                      AS total_feedback
+")->fetch() ?: [
+    'total_produk_aktif'   => 0,
+    'produk_menunggu'      => 0,
+    'booking_menunggu'     => 0,
+    'booking_dikonfirmasi' => 0,
+    'total_pengguna'       => 0,
+    'total_feedback'       => 0,
+];
+
 $transactions = $pdo->query(
     'SELECT kode_transaksi, nama_produk, nama_pembeli, email_pembeli, jumlah, total, metode_pembayaran, status, tanggal
      FROM transaksi_data
@@ -87,6 +105,10 @@ function format_rupiah(int|float|string $amount): string
                 <a href="bookingDashboard.php">
                     <img src="../asset/dashboard/home-icon.png" alt="" width="19" height="19">
                     Data Booking
+                </a>
+                <a href="productDashboard.php">
+                    <img src="../asset/dashboard/product-icon.png" alt="" width="19" height="19">
+                    Data Produk
                 </a>
                 <a href="feedbackDashboard.php">
                     <img src="../asset/dashboard/speechBubble-icon.png" alt="" width="19" height="19">
@@ -139,9 +161,50 @@ function format_rupiah(int|float|string $amount): string
                 </div>
             </section>
 
+            <h2 class="section-title">Ringkasan Data</h2>
+            <section class="stats stats-overview">
+                <div class="stat-card">
+                    <div>
+                        <h3><?= (int) $widgetStats['total_produk_aktif'] ?></h3>
+                        <p>Produk Aktif</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <h3><?= (int) $widgetStats['produk_menunggu'] ?></h3>
+                        <p>Produk Menunggu</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <h3><?= (int) $widgetStats['booking_menunggu'] ?></h3>
+                        <p>Booking Menunggu</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <h3><?= (int) $widgetStats['booking_dikonfirmasi'] ?></h3>
+                        <p>Booking Dikonfirmasi</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <h3><?= (int) $widgetStats['total_pengguna'] ?></h3>
+                        <p>Total Pengguna</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <h3><?= (int) $widgetStats['total_feedback'] ?></h3>
+                        <p>Total Feedback</p>
+                    </div>
+                </div>
+            </section>
+
             <section class="panel">
                 <div class="panel-head">
                     <h2>Rincian Penjualan</h2>
+                    <a href="laporan/penjualan.php" class="profile-edit" target="_blank">&#11015; Download Laporan PDF</a>
                 </div>
                 <div class="table-wrap">
                     <table>

@@ -6,9 +6,10 @@ $pdo = db();
 $adminProfile = get_admin_profile();
 
 $feedbacks = $pdo->query(
-    'SELECT f.nama_pengguna, f.pesan, f.tanggal, t.nama_tempat
+    'SELECT f.nama_pengguna, f.pesan, f.tanggal, t.nama_tempat, p.nama_produk
      FROM feedback_data f
      LEFT JOIN tempat_booking t ON t.id = f.tempat_id
+     LEFT JOIN product_data p ON p.id = f.product_id
      ORDER BY f.tanggal DESC'
 )->fetchAll();
 ?>
@@ -41,6 +42,10 @@ $feedbacks = $pdo->query(
                 <a href="bookingDashboard.php">
                     <img src="../asset/dashboard/home-icon.png" alt="" width="19" height="19">
                     Data Booking
+                </a>
+                <a href="productDashboard.php">
+                    <img src="../asset/dashboard/product-icon.png" alt="" width="19" height="19">
+                    Data Produk
                 </a>
                 <a href="feedbackDashboard.php" class="active">
                     <img src="../asset/dashboard/speechBubble-icon.png" alt="" width="19" height="19">
@@ -75,7 +80,7 @@ $feedbacks = $pdo->query(
                         <thead>
                             <tr>
                                 <th>Pengguna</th>
-                                <th>Tempat</th>
+                                <th>Produk / Tempat</th>
                                 <th>Pesan</th>
                                 <th>Tanggal</th>
                             </tr>
@@ -89,7 +94,7 @@ $feedbacks = $pdo->query(
                                 <?php foreach ($feedbacks as $fb): ?>
                                     <tr>
                                         <td><?= escape_html($fb['nama_pengguna']) ?></td>
-                                        <td><?= escape_html($fb['nama_tempat'] ?? '-') ?></td>
+                                        <td><?= escape_html($fb['nama_produk'] ?? $fb['nama_tempat'] ?? 'Umum') ?></td>
                                         <td><?= escape_html($fb['pesan']) ?></td>
                                         <td><?= escape_html(date('d M Y', strtotime($fb['tanggal']))) ?></td>
                                     </tr>
